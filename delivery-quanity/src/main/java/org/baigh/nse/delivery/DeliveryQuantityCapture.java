@@ -35,11 +35,13 @@ public class DeliveryQuantityCapture {
 		final WebDriver driver = new FirefoxDriver(options);
 
 		driver.get("https://www.nseindia.com/products/content/equities/equities/eq_security.htm");
+		
 		System.out.println(System.currentTimeMillis());
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-
+		Thread.sleep(5000l);
 		new File(date).mkdirs();
-		final String scripts = "RELIANCE,VOLTAS,BHEL,BEL,BATAINDIA";
+		final String scripts = "ADANIPORTS,ASIANPAINT,BAJAJ-AUTO,BHARTIARTL,BPCL,BRITANNIA,CIPLA,COALINDIA,DRREDDY,EICHERMOT,GAIL,GRASIM,HCLTECH,HEROMOTOCO,HINDALCO,HINDUNILVR,INFRATEL,INFY,IOC,JSWSTEEL,LT,M&M,MARUTI,ONGC,POWERGRID,RELIANCE,SUNPHARMA,TATAMOTORS,TATASTEEL,TCS,TECHM,TITAN,ULTRACEMCO,UPL,VEDL,WIPRO";
+
 		for (final String item : scripts.split(",")) {
 			getDQ(driver, date, item);
 		}
@@ -55,6 +57,10 @@ public class DeliveryQuantityCapture {
 
 		driver.findElement(By.id("symbol")).clear();
 		driver.findElement(By.id("symbol")).sendKeys(script);
+		
+		final Select dropdownSeries = new Select(driver.findElement(By.id("series")));
+		dropdownSeries.selectByValue("EQ");
+		
 		final Select dropdown = new Select(driver.findElement(By.id("dateRange")));
 
 		// dropdown.selectByValue("15days");
