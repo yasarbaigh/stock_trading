@@ -27,7 +27,7 @@ import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 public class DeliveryQuantityCapture {
 	public static void main(String[] args) throws Exception {
 
-		System.setProperty("webdriver.gecko.driver", "/opt/jars/sel/geckodriver");
+		System.setProperty("webdriver.gecko.driver", "F:\\yasar\\my-git\\geckodriver-v0.24.0\\geckodriver.exe");
 
 		final FirefoxOptions options = new FirefoxOptions();
 		options.addArguments("--start-maximized", "--start-fullscreen");
