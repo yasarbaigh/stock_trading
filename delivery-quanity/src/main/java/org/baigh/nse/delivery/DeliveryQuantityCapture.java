@@ -25,20 +25,25 @@ import ru.yandex.qatools.ashot.coordinates.WebDriverCoordsProvider;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
 public class DeliveryQuantityCapture {
+	
+	public static long TIME_UNIT = 3000;
+	
 	public static void main(String[] args) throws Exception {
 
-		System.setProperty("webdriver.gecko.driver", "F:\\yasar\\my-git\\geckodriver-v0.24.0\\geckodriver.exe");
+		//System.setProperty("webdriver.gecko.driver", "F:\\yasar\\my-git\\geckodriver-v0.24.0\\geckodriver.exe");
+		
+		System.setProperty("webdriver.gecko.driver", "/opt/jars/sel/geckodriver");
 
 		final FirefoxOptions options = new FirefoxOptions();
 		options.addArguments("--start-maximized", "--start-fullscreen");
 
 		final WebDriver driver = new FirefoxDriver(options);
 
-		driver.get("https://www.nseindia.com/products/content/equities/equities/eq_security.htm");
+		//driver.get("https://www.nseindia.com/products/content/equities/equities/eq_security.htm");
 		
 		System.out.println(System.currentTimeMillis());
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-		Thread.sleep(5000l);
+		Thread.sleep(TIME_UNIT);
 		new File(date).mkdirs();
 		final String scripts = "ADANIPORTS,ASIANPAINT,BAJAJ-AUTO,BHARTIARTL,BPCL,BRITANNIA,CIPLA,COALINDIA,DRREDDY,EICHERMOT,GAIL,GRASIM,HCLTECH,HEROMOTOCO,HINDALCO,HINDUNILVR,INFRATEL,INFY,IOC,JSWSTEEL,LT,M&M,MARUTI,ONGC,POWERGRID,RELIANCE,SUNPHARMA,TATAMOTORS,TATASTEEL,TCS,TECHM,TITAN,ULTRACEMCO,UPL,VEDL,WIPRO";
 
@@ -52,14 +57,16 @@ public class DeliveryQuantityCapture {
 	}
 
 	private static void getDQ(WebDriver driver, String directoryValue, String script) throws Exception {
+		driver.get("https://www.nseindia.com/products/content/equities/equities/eq_security.htm");
+		Thread.sleep(TIME_UNIT);
+		
+		final Select dropdownSeries = new Select(driver.findElement(By.id("series")));
+		dropdownSeries.selectByValue("EQ");
 
-		Thread.sleep(5000l);
 
 		driver.findElement(By.id("symbol")).clear();
 		driver.findElement(By.id("symbol")).sendKeys(script);
 		
-		final Select dropdownSeries = new Select(driver.findElement(By.id("series")));
-		dropdownSeries.selectByValue("EQ");
 		
 		final Select dropdown = new Select(driver.findElement(By.id("dateRange")));
 
@@ -68,7 +75,7 @@ public class DeliveryQuantityCapture {
 
 		driver.findElement(By.className("getdata-button")).click();
 
-		Thread.sleep(5000l);
+		Thread.sleep(TIME_UNIT);
 
 		takeFullPageScreenShotAsByte(driver, directoryValue, script);
 	}

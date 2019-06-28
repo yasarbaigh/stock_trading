@@ -1,7 +1,6 @@
-====================================================
-Run Commands
-====================================================
-nohup /opt/bidsopt/bucketization/bin/bucketization-bucketprocessor.sh > /opt/bidsopt/bucketization/logs/bucketization_nohup.log 2>&1 &
+bidds
 
-/etc/init.d/bucketservice stop
-/etc/init.d/bucketservice start
+
+6,7,8,9
+
+
