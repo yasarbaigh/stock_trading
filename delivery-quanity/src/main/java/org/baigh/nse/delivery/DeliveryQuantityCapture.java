@@ -36,6 +36,7 @@ public class DeliveryQuantityCapture {
 
 		final FirefoxOptions options = new FirefoxOptions();
 		options.addArguments("--start-maximized", "--start-fullscreen");
+		//options.setHeadless(true);
 
 		final WebDriver driver = new FirefoxDriver(options);
 
