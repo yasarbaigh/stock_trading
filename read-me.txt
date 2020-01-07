@@ -1,0 +1,5 @@
+Required python 3.5+
+
+mysql database
+
+use nse_stats.sql for schema
