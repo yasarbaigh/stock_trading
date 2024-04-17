@@ -60,11 +60,9 @@ class AngelConnector():
 
     def generate_smart_api_session(self):
         try:
-            # self.logger_obj = LogUtils.return_logger(__name__)
             self.prepare_master_df()
 
             self.smartApi = SmartConnect(API_KEY, disable_ssl=True)
-            # token = "IDDYSN2ODWM27OIBJ4DQC7BMXU"
             totp = pyotp.TOTP(APP_TOKEN_KEY).now()
 
         except Exception as e:
@@ -174,6 +172,7 @@ class AngelConnector():
             }
             # Method 1: Place an order and return the order ID
             # orderid = self.smartApi.placeOrder(orderparams)
+            self.logger_obj.info('Order Details: {}'.format(orderparams))
             orderid = self.smartApi.placeOrderFullResponse(orderparams)
             self.logger_obj.info(f"Placed Order : {orderid}")
 

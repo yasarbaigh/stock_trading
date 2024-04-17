@@ -1,9 +1,8 @@
-
-
-
 MASTER_FILE = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
 
 MASTER_FILE_PATH = '/opt/tmp/angel_1/{}_OpenAPIScripMaster.json'
+STOP_CHECK = '/opt/tmp/angel_1/stop.txt'
+STOPPED = '/opt/tmp/angel_1/stop.txt.stopped'
 
 XCHANGE_NSE = 'NSE'
 XCHANGE_BSE = 'BSE'
@@ -35,11 +34,7 @@ DATE_FORMAT_DAY_HISTROIC_CANDLE = '%Y-%M-%d'
 DATE_FORMAT_START_TIME = '09:15'
 DATE_FORMAT_END_TIME = '15:30'
 
-#
-# INSTRUMENTS = [
-#     # day, label, strike-diff-price,  entry-step-price, 2nd-entry-step-price
-#     ['MONDAY', 'MID-CAP', 25, 25, 50],
-#     ['TUESDAY', 'FIN-NIFTY', 50, 50, 100],
-#     ['WEDNESDAY', 'NIFTY 50', 50, 50, 100],
-#     ['THURSDAY', 'NIFTY 50', 50, 50, 100],
-#     ['FRIDAY', 'SENSEX', 100, 100, 300]]
+ALLOWED_ORDER_STATUS = ['open', 'complete', 'cancelled', 'rejected']
+
+ANGEL_1_BSE = 'ANGEL_1_BSE'
+ANGEL_1_NSE = 'ANGEL_1_NSE'
