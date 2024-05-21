@@ -1,6 +1,7 @@
 # package import statement
 import json
 import os
+import time
 from datetime import datetime
 
 import pandas as pd
@@ -94,10 +95,24 @@ class AngelConnector():
         return self.smartApi.holding()
 
     def get_orders(self, filters=None):
-        return self.smartApi.orderBook()
+        orders = self.smartApi.orderBook()
+        i = 1
+        while orders.get('errorcode') :
+            self.logger_obj.error('get_orders failed: {}'.format(orders))
+            time.sleep(i)
+            orders = self.smartApi.orderBook()
+            i += 1
+        return orders
 
     def get_positions(self, filters=None):
-        return self.smartApi.position()
+        postns = self.smartApi.position()
+        i = 1
+        while postns.get('errorcode'):
+            self.logger_obj.error('get_positions failed: {}'.format(postns))
+            time.sleep(i)
+            postns = self.smartApi.position()
+            i += 1
+        return postns
 
     def get_script_details(self, script_name):
         row = self.master_df[self.master_df['symbol'].str.contains(script_name) == True]
@@ -109,7 +124,15 @@ class AngelConnector():
 
     def get_ltp(self, my_exchange='NSE', my_symbol='', my_token='3045', ):
         # my_symbol is not used, only exchange and token are considered, 3045-SBI-EQ
-        return self.smartApi.ltpData(my_exchange, my_symbol, my_token)
+        ltp = self.smartApi.ltpData(my_exchange, my_symbol, my_token)
+        i = 1
+        while ltp.get('errorcode'):
+            self.logger_obj.error('get_ltp failed: {}'.format(ltp))
+            time.sleep(i)
+            ltp = self.smartApi.ltpData(my_exchange, my_symbol, my_token)
+            i += 1
+        return ltp
+        # return self.smartApi.ltpData(my_exchange, my_symbol, my_token)
 
     def get_candlde_data(self, stock_name, my_exchange='NSE', my_token='3045', my_interval='ONE_MINUTE', ):
         # https://smartapi.angelbroking.com/docs/Historical
@@ -138,7 +161,7 @@ class AngelConnector():
             print("Historic Api failed: {}".format(e.message))
 
     def order_placment(self, my_symbol='SBIN-EQ', my_token='3045', my_type=TYPE_SELL, my_exchange='NSE', my_price=1,
-                       my_quantity=1, my_order_type=ORDER_MARKET):
+                       my_quantity=1, my_order_type=ORDER_MARKET, my_ordertag=''):
         try:
             # orderparams = {
             #     "variety": "NORMAL",
@@ -168,7 +191,8 @@ class AngelConnector():
                 "squareoff": "0",
                 "stoploss": "0",
                 "quantity": my_quantity,
-                "tag": my_symbol
+                "tag": my_symbol,
+                'ordertag': my_ordertag
             }
             # Method 1: Place an order and return the order ID
             # orderid = self.smartApi.placeOrder(orderparams)
