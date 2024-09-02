@@ -1,9 +1,12 @@
+BASE_PREFIX = '/home/trys'
+
+
 MASTER_FILE = 'https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json'
 
-MASTER_FILE_PATH = '/opt/tmp/angel_1/{}_OpenAPIScripMaster.json'
-STOP_CHECK = '/opt/tmp/angel_1/stop.txt'
-STOPPED = '/opt/tmp/angel_1/stop.txt.stopped'
-ADHOC_PROPERTIES = '/opt/tmp/angel_1/angel_adhoc.properties'
+MASTER_FILE_PATH = BASE_PREFIX + '/opt/tmp/angel_1/{}_OpenAPIScripMaster.json'
+STOP_CHECK = BASE_PREFIX+ '/opt/tmp/angel_1/stop.txt'
+STOPPED = BASE_PREFIX + '/opt/tmp/angel_1/stop.txt.stopped'
+ADHOC_PROPERTIES = BASE_PREFIX + '/opt/tmp/angel_1/angel_adhoc.properties'
 
 XCHANGE_NSE = 'NSE'
 XCHANGE_BSE = 'BSE'

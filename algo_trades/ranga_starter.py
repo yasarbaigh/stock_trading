@@ -2,10 +2,11 @@ from datetime import datetime
 
 from pytz import timezone
 
+from angel_one.configs import BASE_PREFIX
 from common_utils.log_utils import LogUtils
 
 dt_now = datetime.now(timezone("Asia/Kolkata"))
-LogUtils("/opt/tmp/angel_1/angel_api_{}.log".format(dt_now.strftime('%Y-%m-%d')))
+LogUtils(BASE_PREFIX + "/opt/tmp/angel_1/angel_api_{}.log".format(dt_now.strftime('%Y-%m-%d')))
 
 logger_obj = LogUtils.return_logger(__name__)
 logger_obj.info('Starting algo now !!')
