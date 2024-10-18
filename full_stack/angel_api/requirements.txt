@@ -1,0 +1,8 @@
+smartapi-python
+pandas
+pytop
+logzero
+websocket
+requests
+Flask
+flask-cors
