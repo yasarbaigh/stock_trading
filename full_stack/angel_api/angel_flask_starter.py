@@ -24,10 +24,13 @@ from flask import Flask, request, jsonify
 from threading import Thread
 
 app = Flask('Angel_Flask')
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3002", "http://127.0.0.1:3002"
-                                                                  "http://chyr.duckdns.org:3002",
-                                         'http://192.168.0.109:3002', 'http://my_pv_ip:3002'],
-                             "supports_credentials": True}})
+# CORS(app, resources={r"/*": {"origins": ["http://localhost:3002", "http://127.0.0.1:3002"
+#                                                                   "http://chyr.duckdns.org:3002",
+#                                          'http://192.168.0.109:3002', 'http://my_pv_ip:3002'],
+#                              "supports_credentials": True}})
+
+# allow allow origins
+CORS(app, resources={r"/*": {"origins": '*', "supports_credentials": True}})
 
 MAIN_THERADS = {}
 STOPPED_THERADS = {}

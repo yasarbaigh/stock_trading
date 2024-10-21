@@ -11,7 +11,7 @@ from angel_one.angel_utils import should_place_order
 
 from FLASK_CONFIGS import ACTION_START, ACTION, SELECTED_STOCK, THREAD_KEY, SELECTED_STRIKE, SELECTED_OPTIONS, \
     OPTION_BOTH, OPTION_CE, SELECTED_DATE, SELECTED_TF, SELECTED_LOT, OPTION_PE, PUNCHED_AT, REASON, ACTION_STOP, \
-    PLACE_PE_ORDER, PLACE_CE_ORDER
+    PLACE_PE_ORDER, PLACE_CE_ORDER, STRATEGY
 from angel_one.token_ids import INDEX_TOKEN_IDS
 from common_utils.log_utils import LogUtils
 from math_modals.math_conversion import candle_to_heikin_ashi
@@ -98,6 +98,7 @@ def hekin_aashi_in_index_strikes(conn, thread_args):
 
             if place_attempt_iterate_skipped :
                 logger_objt.info('Requested {} options placed, so breaking loop.'.format(thread_args.get(SELECTED_OPTIONS)))
+                break
             else:
                 time.sleep(20)
 

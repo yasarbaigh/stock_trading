@@ -92,7 +92,7 @@ export default {
             stocks: [
                 { name: '', symbol: '' },
                 { name: 'NIFTY_50', symbol: 'NIFTY_50' },
-                { name: 'MID_CP_NIFTY', symbol: 'MID_CP_NIFTY' },
+                { name: 'MID_CP_NIFTY', symbol: 'MIDCPNIFTY' },
                 // { name: 'SENSEX', symbol: 'SENSEX' },
             ],
             options: [
