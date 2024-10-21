@@ -6,10 +6,13 @@ STRATEGY = 'strategy'
 SELECTED_OPTIONS = 'selectedOptions'
 SELECTED_DATE = 'selectedDate'
 PUNCHED_AT = 'punchedAt'
+REASON = 'reason'
 
 OPTION_CE = 'CE'
 OPTION_PE = 'PE'
 OPTION_BOTH = 'BOTH'
+PLACE_CE_ORDER = 'place_ce_order'
+PLACE_PE_ORDER = 'place_pe_order'
 
 STRATEGY_HEIKIN_ASHI = 'HEIKIN_ASHI'
 

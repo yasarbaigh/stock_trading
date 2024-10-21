@@ -10,7 +10,7 @@ import threading
 import time
 
 from FLASK_CONFIGS import SELECTED_STOCK, SELECTED_STRIKE, SELECTED_LOT, SELECTED_TF, ACTION_START, ACTION, THREAD_KEY, \
-    THREAD_OBJT, ACTION_STOP, STRATEGY, STRATEGY_HEIKIN_ASHI, SELECTED_DATE, SELECTED_OPTIONS, PUNCHED_AT
+    THREAD_OBJT, ACTION_STOP, STRATEGY, STRATEGY_HEIKIN_ASHI, SELECTED_DATE, SELECTED_OPTIONS, PUNCHED_AT, REASON
 from datetime import datetime
 # ZZZ make sure u dont change above snippet
 from angel_one.angel_connector import AngelConnector
@@ -24,11 +24,13 @@ from flask import Flask, request, jsonify
 from threading import Thread
 
 app = Flask('Angel_Flask')
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3002","http://127.0.0.1:3002"
-                                         "http://chyr.duckdns.org:3002", 'http://192.168.0.109:3002'],
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3002", "http://127.0.0.1:3002"
+                                                                  "http://chyr.duckdns.org:3002",
+                                         'http://192.168.0.109:3002', 'http://my_pv_ip:3002'],
                              "supports_credentials": True}})
 
 MAIN_THERADS = {}
+STOPPED_THERADS = {}
 
 
 @app.route('/api/get_running', methods=["GET", 'POST'])
@@ -36,16 +38,24 @@ def add_guide():
     logger_obj.info(MAIN_THERADS)
 
     op = []
+    stopped_op = []
     for k, v in MAIN_THERADS.items():
         ele = {'name': k}
-        for k1,v1 in v.items():
+        for k1, v1 in v.items():
             if k1 == THREAD_OBJT:
                 continue
-            ele[k1]  = v1
+            ele[k1] = v1
         op.append(ele)
 
+    for k, v in STOPPED_THERADS.items():
+        ele = {'name': k}
+        for k1, v1 in v.items():
+            if k1 == THREAD_OBJT:
+                continue
+            ele[k1] = v1
+        stopped_op.append(ele)
 
-    return jsonify({'message': op}), 200
+    return jsonify({'message': op, 'stopped': stopped_op}), 200
 
 
 @app.route('/api/start_pattern', methods=['GET', "POST"])
@@ -123,6 +133,32 @@ def stop_pattern():
         MAIN_THERADS.pop(thread_key, None)
 
 
+@app.route('/api/simple_stop', methods=['GET', "POST"])
+def simple_stop_pattern():
+    thread_key = ''
+    try:
+        stop_args = {}
+        if request.is_json:
+            json_data = request.get_json()
+            thread_key = json_data.get(THREAD_KEY)
+
+            logger_obj.info('Received a STOP combo {}'.format(thread_key))
+            if MAIN_THERADS.get(thread_key):
+                vl = MAIN_THERADS.get(thread_key)
+                vl[ACTION] = ACTION_STOP
+                vl[REASON] = 'Manually Stopped.'
+                return jsonify({"message": "Combo {} stopping.".format(thread_key)}), 200
+            else:
+                return jsonify({"message": "Combo Not Available. "}), 200
+        else:
+            return jsonify({"message": "Failed ."}), 400
+    except Exception as e:
+        logger_obj.error('stop request error {}'.format(e))
+        return jsonify({"message": "Failed {}.".format(e)}), 400
+    finally:
+        pass
+
+
 def trigger_pattern_in_thread(conn, thread_args):
     try:
         print('STARTing THREAD: {}'.format(thread_args))
@@ -138,6 +174,7 @@ def trigger_pattern_in_thread(conn, thread_args):
     except Exception as e:
         logger_obj.error('Error in trigger_pattern_in_thread {}'.format(e))
     finally:
+        STOPPED_THERADS[thread_args.get(THREAD_KEY)] = thread_args
         MAIN_THERADS.pop(thread_args.get(THREAD_KEY), None)
 
 

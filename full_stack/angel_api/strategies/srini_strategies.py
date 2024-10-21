@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 
 from angel_one.configs import BASE_PREFIX, SEGMENT_NSE_FNO, TYPE_BUY, VARIETY_BRACKET_ORDER, ORDER_LIMIT, \
-    PRODCUT_TYPE_BRACKET_ORDER
+    PRODCUT_TYPE_BRACKET_ORDER, INTERVAL_5_MIN, INTERVAL_15_MIN, INTERVAL_10_MIN
 from common_utils.log_utils import LogUtils
 
 LogUtils(BASE_PREFIX + "/opt/tmp/angel_1/angel_api_{}.log")
@@ -10,7 +10,8 @@ LogUtils(BASE_PREFIX + "/opt/tmp/angel_1/angel_api_{}.log")
 from angel_one.angel_utils import should_place_order
 
 from FLASK_CONFIGS import ACTION_START, ACTION, SELECTED_STOCK, THREAD_KEY, SELECTED_STRIKE, SELECTED_OPTIONS, \
-    OPTION_BOTH, OPTION_CE, SELECTED_DATE, SELECTED_TF, SELECTED_LOT, OPTION_PE, PUNCHED_AT
+    OPTION_BOTH, OPTION_CE, SELECTED_DATE, SELECTED_TF, SELECTED_LOT, OPTION_PE, PUNCHED_AT, REASON, ACTION_STOP, \
+    PLACE_PE_ORDER, PLACE_CE_ORDER
 from angel_one.token_ids import INDEX_TOKEN_IDS
 from common_utils.log_utils import LogUtils
 from math_modals.math_conversion import candle_to_heikin_ashi
@@ -26,6 +27,10 @@ def hekin_aashi_in_index_strikes(conn, thread_args):
 
         token_key = thread_args.get(SELECTED_STOCK)
         token_v = INDEX_TOKEN_IDS.get(token_key)
+
+        thread_args[PLACE_CE_ORDER]= True
+        thread_args[PLACE_PE_ORDER]= True
+        thread_args[REASON] = ''
 
         ltp = conn.get_ltp(my_exchange=token_v.get('exchange'), my_token=token_v.get('symboltoken'))
         while ltp.get('errorcode'):
@@ -55,25 +60,55 @@ def hekin_aashi_in_index_strikes(conn, thread_args):
         logger_objt.info('Chosen pe_details {} '.format(pe_details))
 
         if pe_details is None and ce_details is None:
+            thread_args[REASON] = 'No CE/PE Details , so exiting BYE BYE'
             logger_objt.info('No CE/PE Details , so exiting the thread. BYE BYE')
+            thread_args.get(ACTION) == ACTION_STOP
+            return
+
+        # waiting for next-candle
+        while True:
+            dt = datetime.now()
+            if thread_args.get(SELECTED_TF) == INTERVAL_5_MIN and dt.minute % 5 == 0:
+                logger_objt.info('{} next candle matched. '.format(thread_args.get(THREAD_KEY)))
+                time.sleep(35)
+                break
+            elif thread_args.get(SELECTED_TF) == INTERVAL_10_MIN and dt.minute % 10 == 0:
+                logger_objt.info('{} next candle matched. '.format(thread_args.get(THREAD_KEY)))
+                time.sleep(35)
+                break
+            elif thread_args.get(SELECTED_TF) == INTERVAL_15_MIN and dt.minute % 15 == 0:
+                logger_objt.info('{} next candle matched. '.format(thread_args.get(THREAD_KEY)))
+                time.sleep(35)
+                break
+            else:
+                logger_objt.info(
+                    'For {} waiting for next set of seconds & candle . '.format(thread_args.get(THREAD_KEY)))
+                time.sleep(35)
 
         while thread_args.get(ACTION) == ACTION_START:
+            place_attempt_iterate_skipped = True
 
-            if ce_details:
-                process_option_HA(conn, thread_args, ce_details)
+            if ce_details and thread_args.get(PLACE_CE_ORDER):
+                place_attempt_iterate_skipped = False
+                process_option_HA(conn, thread_args, ce_details, PLACE_CE_ORDER)
 
-            if pe_details:
-                process_option_HA(conn, thread_args, pe_details)
+            if pe_details and thread_args.get(PLACE_PE_ORDER):
+                place_attempt_iterate_skipped = False
+                process_option_HA(conn, thread_args, pe_details, PLACE_PE_ORDER)
 
-            time.sleep(20)
+            if place_attempt_iterate_skipped :
+                logger_objt.info('Requested {} options placed, so breaking loop.'.format(thread_args.get(SELECTED_OPTIONS)))
+            else:
+                time.sleep(20)
 
     except Exception as e:
         logger_objt.error('error hekin_ashi_in_index_strikes {}'.format(e))
+        thread_args[REASON] = thread_args[REASON] + '{}'.format(e)
     finally:
         pass
 
 
-def process_option_HA(conn, thread_args, option_details):
+def process_option_HA(conn, thread_args, option_details, option_key):
     logger_objt.info('Checking for combo {}'.format(thread_args.get(THREAD_KEY)))
     candle_data = conn.get_candlde_data(SEGMENT_NSE_FNO, option_details.get('token'),
                                         thread_args.get(SELECTED_TF))
@@ -103,8 +138,12 @@ def process_option_HA(conn, thread_args, option_details):
                                 my_stop_loss=heikin_df['HA_Low'].iloc[-2] - 2,
                                 my_squar_off=HEIKIN_TARGET_POINT,
                                 my_quantity=int(thread_args.get(SELECTED_LOT)) * option_details.get('lotsize'),
-                                my_ordertag=thread_args.get(THREAD_KEY) + thread_args.get(PUNCHED_AT), my_variety=VARIETY_BRACKET_ORDER,
+                                my_ordertag=thread_args.get(THREAD_KEY) + thread_args.get(PUNCHED_AT),
+                                my_variety=VARIETY_BRACKET_ORDER,
                                 my_product_type=PRODCUT_TYPE_BRACKET_ORDER)
+            thread_args[option_key] = False
+            thread_args[REASON] = thread_args[REASON] + '{} Done. '.format(option_key)
+
         else:
             logger_objt.info('for {} order-exists already, so Skipping.'.format(option_details))
 
