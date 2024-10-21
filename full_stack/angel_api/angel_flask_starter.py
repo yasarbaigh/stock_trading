@@ -14,7 +14,7 @@ from FLASK_CONFIGS import SELECTED_STOCK, SELECTED_STRIKE, SELECTED_LOT, SELECTE
 from datetime import datetime
 # ZZZ make sure u dont change above snippet
 from angel_one.angel_connector import AngelConnector
-from strategies.srini_strategies import hekin_aashi_in_index_strikes
+from strategies.heikin_ashi_index_strategy import hekin_aashi_in_index_strikes
 from flask_cors import CORS
 
 conn = AngelConnector()
@@ -149,7 +149,7 @@ def simple_stop_pattern():
             if MAIN_THERADS.get(thread_key):
                 vl = MAIN_THERADS.get(thread_key)
                 vl[ACTION] = ACTION_STOP
-                vl[REASON] = 'Manually Stopped.'
+                vl[REASON] += '; Manually Stopped.'
                 return jsonify({"message": "Combo {} stopping.".format(thread_key)}), 200
             else:
                 return jsonify({"message": "Combo Not Available. "}), 200

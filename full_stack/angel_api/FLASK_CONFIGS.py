@@ -7,6 +7,7 @@ SELECTED_OPTIONS = 'selectedOptions'
 SELECTED_DATE = 'selectedDate'
 PUNCHED_AT = 'punchedAt'
 REASON = 'reason'
+CHOOSE_STRIKE = 'choosenStrike'
 
 OPTION_CE = 'CE'
 OPTION_PE = 'PE'

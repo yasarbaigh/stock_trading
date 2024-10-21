@@ -11,7 +11,8 @@
           <th> Selected Stock </th>
           <th> Date </th>
           <th> Punched At </th>
-          <th> Selected Options </th>
+          <th> Strike Prices </th>
+          <!-- <th> Selected Options </th> -->
           <th> Selected Strike </th>
           <th> Selected TF </th>
           <th> Lot </th>
@@ -26,7 +27,8 @@
           <td>{{ record.selectedStock }}</td>
           <td>{{ record.selectedDate }}</td>
           <td>{{ record.punchedAt }}</td>
-          <td>{{ record.selectedOptions }}</td>
+          <td>{{ record.choosenStrike }}</td>
+          <!-- <td>{{ record.selectedOptions }}</td> -->
           <td>{{ record.selectedStrike }}</td>
           <td>{{ record.selectedTF }}</td>
           <td>{{ record.selectedLot }}</td>
@@ -47,7 +49,8 @@
           <th> Selected Stock </th>
           <th> Date </th>
           <th> Punched At </th>
-          <th> Selected Options </th>
+          <th> Strike Prices </th>
+          <!-- <th> Selected Options </th> -->
           <th> Selected Strike </th>
           <th> Selected TF </th>
           <th> Lot </th>
@@ -63,7 +66,8 @@
           <td>{{ row_item.selectedStock }}</td>
           <td>{{ row_item.selectedDate }}</td>
           <td>{{ row_item.punchedAt }}</td>
-          <td>{{ row_item.selectedOptions }}</td>
+          <td>{{ row_item.choosenStrike }}</td>
+          <!-- <td>{{ row_item.selectedOptions }}</td> -->
           <td>{{ row_item.selectedStrike }}</td>
           <td>{{ row_item.selectedTF }}</td>
           <td>{{ row_item.selectedLot }}</td>

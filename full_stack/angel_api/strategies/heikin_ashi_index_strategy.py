@@ -11,7 +11,7 @@ from angel_one.angel_utils import should_place_order
 
 from FLASK_CONFIGS import ACTION_START, ACTION, SELECTED_STOCK, THREAD_KEY, SELECTED_STRIKE, SELECTED_OPTIONS, \
     OPTION_BOTH, OPTION_CE, SELECTED_DATE, SELECTED_TF, SELECTED_LOT, OPTION_PE, PUNCHED_AT, REASON, ACTION_STOP, \
-    PLACE_PE_ORDER, PLACE_CE_ORDER, STRATEGY
+    PLACE_PE_ORDER, PLACE_CE_ORDER, STRATEGY, CHOOSE_STRIKE
 from angel_one.token_ids import INDEX_TOKEN_IDS
 from common_utils.log_utils import LogUtils
 from math_modals.math_conversion import candle_to_heikin_ashi
@@ -28,9 +28,10 @@ def hekin_aashi_in_index_strikes(conn, thread_args):
         token_key = thread_args.get(SELECTED_STOCK)
         token_v = INDEX_TOKEN_IDS.get(token_key)
 
-        thread_args[PLACE_CE_ORDER]= True
-        thread_args[PLACE_PE_ORDER]= True
+        thread_args[PLACE_CE_ORDER] = True
+        thread_args[PLACE_PE_ORDER] = True
         thread_args[REASON] = ''
+        thread_args[CHOOSE_STRIKE] = ''
 
         ltp = conn.get_ltp(my_exchange=token_v.get('exchange'), my_token=token_v.get('symboltoken'))
         while ltp.get('errorcode'):
@@ -50,23 +51,25 @@ def hekin_aashi_in_index_strikes(conn, thread_args):
             ce_strike = ltp_rounded + (int(thread_args.get(SELECTED_STRIKE)) * token_v.get('option_step'))
             ce_option_name = token_v.get('prefix').format(date_objt.strftime('%d%b%y'), ce_strike, 'CE').upper()
             ce_details = conn.get_script_details(ce_option_name)
+            thread_args[CHOOSE_STRIKE] += (str(ce_strike) + 'CE').upper()
 
         if thread_args.get(SELECTED_OPTIONS) == OPTION_BOTH or thread_args.get(SELECTED_OPTIONS) == OPTION_PE:
             pe_strike = ltp_rounded - (int(thread_args.get(SELECTED_STRIKE)) * token_v.get('option_step'))
             pe_option_name = token_v.get('prefix').format(date_objt.strftime('%d%b%y'), pe_strike, 'PE').upper()
             pe_details = conn.get_script_details(pe_option_name)
+            thread_args[CHOOSE_STRIKE] += (str(ce_strike) + 'PE').upper()
 
         logger_objt.info('Chosen ce_details {} '.format(ce_details))
         logger_objt.info('Chosen pe_details {} '.format(pe_details))
 
         if pe_details is None and ce_details is None:
-            thread_args[REASON] = 'No CE/PE Details , so exiting BYE BYE'
+            thread_args[REASON] += '; No CE/PE Details , so exiting BYE BYE'
             logger_objt.info('No CE/PE Details , so exiting the thread. BYE BYE')
             thread_args.get(ACTION) == ACTION_STOP
             return
 
         # waiting for next-candle
-        while True:
+        while thread_args.get(ACTION) == ACTION_START:
             dt = datetime.now()
             if thread_args.get(SELECTED_TF) == INTERVAL_5_MIN and dt.minute % 5 == 0:
                 logger_objt.info('{} next candle matched. '.format(thread_args.get(THREAD_KEY)))
@@ -104,7 +107,7 @@ def hekin_aashi_in_index_strikes(conn, thread_args):
 
     except Exception as e:
         logger_objt.error('error hekin_ashi_in_index_strikes {}'.format(e))
-        thread_args[REASON] = thread_args[REASON] + '{}'.format(e)
+        thread_args[REASON] += '; {}'.format(e)
     finally:
         pass
 
@@ -143,7 +146,7 @@ def process_option_HA(conn, thread_args, option_details, option_key):
                                 my_variety=VARIETY_BRACKET_ORDER,
                                 my_product_type=PRODCUT_TYPE_BRACKET_ORDER)
             thread_args[option_key] = False
-            thread_args[REASON] = thread_args[REASON] + '{} Done. '.format(option_key)
+            thread_args[REASON] += '; {} Done at {}. '.format(option_key, datetime.now().strftime("%H:%M:%S"))
 
         else:
             logger_objt.info('for {} order-exists already, so Skipping.'.format(option_details))
